@@ -10,3 +10,5 @@ solutions and find the correct
 arrangement of numbers for the puzzle.
 Once solved, the program should
 display the completed Sudoku grid.
+
+(This code includes GUI)
