@@ -1,0 +1,88 @@
+import tkinter as tk
+from tkinter import messagebox
+
+def is_valid(board, row, col, num):
+    # Check if the number is already present in the row or column
+    for i in range(9):
+        if board[row][i] == num or board[i][col] == num:
+            return False
+    
+    # Check if the number is present in the 3x3 grid
+    start_row, start_col = 3 * (row // 3), 3 * (col // 3)
+    for i in range(3):
+        for j in range(3):
+            if board[start_row + i][start_col + j] == num:
+                return False
+    
+    return True
+
+def solve_sudoku(board):
+    empty_cell = find_empty_cell(board)
+    
+    # If there is no empty cell, the puzzle is solved
+    if not empty_cell:
+        return True
+    
+    row, col = empty_cell
+    
+    # Try filling the cell with numbers 1 to 9
+    for num in range(1, 10):
+        if is_valid(board, row, col, num):
+            board[row][col] = num
+            
+            # Recursively try to solve the rest of the puzzle
+            if solve_sudoku(board):
+                return True
+            
+            # If the current placement is invalid, backtrack
+            board[row][col] = 0
+    
+    # No valid number found, backtrack
+    return False
+
+def find_empty_cell(board):
+    for i in range(9):
+        for j in range(9):
+            if board[i][j] == 0:
+                return (i, j)
+    return None
+
+def solve_puzzle():
+    # Get the puzzle from the input field
+    input_values = [[0]*9 for _ in range(9)]
+    for i in range(9):
+        for j in range(9):
+            value = entry_widgets[i][j].get()
+            if value.isdigit() and 1 <= int(value) <= 9:
+                input_values[i][j] = int(value)
+            elif value != "":
+                messagebox.showerror("Error", "Invalid input. Please enter valid numbers.")
+                return
+    
+    # Call the Sudoku solver
+    if solve_sudoku(input_values):
+        # Display the solved puzzle
+        for i in range(9):
+            for j in range(9):
+                entry_widgets[i][j].delete(0, tk.END)
+                entry_widgets[i][j].insert(0, str(input_values[i][j]))
+    else:
+        messagebox.showinfo("No Solution", "No solution exists for the given puzzle.")
+
+# Create the main GUI window
+root = tk.Tk()
+root.title("Sudoku Solver")
+
+# Create entry widgets for the Sudoku grid
+entry_widgets = [[None]*9 for _ in range(9)]
+for i in range(9):
+    for j in range(9):
+        entry_widgets[i][j] = tk.Entry(root, width=3, font=('Helvetica', 16), justify='center')
+        entry_widgets[i][j].grid(row=i, column=j)
+
+# Create Solve button
+solve_button = tk.Button(root, text="Solve", command=solve_puzzle, font=('Helvetica', 14))
+solve_button.grid(row=9, columnspan=9)
+
+# Run the GUI
+root.mainloop()
